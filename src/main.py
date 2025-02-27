@@ -1,6 +1,7 @@
 import uvicorn
 
 from src.utils import temp
+from src.users import views as users_views
 from src.config import app_config
 from src.config import swagger_config
 from src.settings import settings
@@ -12,9 +13,12 @@ app = app_config.create_app(
 )
 
 app.openapi = app_config.get_custom_openapi(app)
-swagger_config.config_swagger(app, settings.app.APP_TITLE)
 
-app.include_router(temp.router, tags=[settings.tags.TECH_TAG,])
+app.include_router(users_views.router, prefix='/users', tags=[settings.tags.USERS_TAG,])
+app.include_router(temp.router, prefix='/temp', tags=[settings.tags.TECH_TAG,])
+
+
+swagger_config.config_swagger(app, settings.app.APP_TITLE)
 
 
 ######################################################################

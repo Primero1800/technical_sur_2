@@ -8,8 +8,9 @@ from starlette import status
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from src.users.schemas import CreateUser
 
-router = APIRouter(prefix='/temp')
+router = APIRouter()
 
 
 class GetDataFromHeader:
@@ -50,13 +51,9 @@ async def temp(
     return data
 
 
-class User(BaseModel):
-    name: Optional[str] = Field(min_length=3, max_length=30, default='John Doe')
-    email: Annotated[EmailStr, Field(title='Email address', description='Valid email address of person, please')]
-
 @router.post("/email")
 # @router.post("/email/{email}")
-async def temp(user: User):
+async def temp(user: CreateUser):
     return {
         'success': True,
         **user.model_dump()

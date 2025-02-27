@@ -24,6 +24,7 @@ class SwaggerSettings:
 
 class Tags:
     TECH_TAG = os.getenv('TECH_TAG')
+    USERS_TAG = os.getenv('USERS_TAG')
     ROOT_TAG = os.getenv('ROOT_TAG')
     SWAGGER_TAG = os.getenv('SWAGGER_TAG')
 
