@@ -1,8 +1,9 @@
 from functools import partial
-from typing import Any, List
+from typing import Any, List, Annotated, Optional
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Body, Form
 from fastapi.exceptions import RequestValidationError
+from pydantic import EmailStr, BaseModel, Field
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -49,6 +50,20 @@ async def temp(
     return data
 
 
+class User(BaseModel):
+    name: Optional[str] = Field(min_length=3, max_length=30, default='John Doe')
+    email: Annotated[EmailStr, Field(title='Email address', description='Valid email address of person, please')]
+
+@router.post("/email")
+# @router.post("/email/{email}")
+async def temp(user: User):
+    return {
+        'success': True,
+        **user.model_dump()
+    }
+
+
+
 @router.get("")
 @router.get("/{id}")
 async def temp(id: int):
@@ -61,3 +76,5 @@ async def temp(id: int):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(error)
         )
+
+

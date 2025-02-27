@@ -5,3 +5,8 @@ httpx
 httpie
 
 pydantic[email]
+python-multipart
+
+poetry
+
+pytest-mock
