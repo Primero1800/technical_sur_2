@@ -1,7 +1,10 @@
 from typing import Callable, Dict, Any
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
+from starlette.responses import JSONResponse
+
 from src.settings import settings
 
 
@@ -29,3 +32,12 @@ def get_custom_openapi(subject: FastAPI) -> Callable[[], Dict[str, Any]]:
         return subject.openapi_schema
 
     return custom_openapi
+
+
+def config_validation_exception_handler(app: FastAPI):
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(request, exc: RequestValidationError):
+        return JSONResponse(
+            status_code=settings.app.APP_422_CODE_STATUS,
+            content={"detail": exc.errors(), "body": exc.body},
+        )
