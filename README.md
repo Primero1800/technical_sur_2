@@ -1,2 +1,1 @@
-# technical_sur_2
-technical repository
+Technical repository. Not for finished complete application
