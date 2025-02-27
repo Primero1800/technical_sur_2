@@ -15,6 +15,8 @@ class AppSettings:
     APP_VERSION: str = os.getenv('APP_VERSION')
     APP_DESCRIPTION: str = os.getenv('APP_DESCRIPTION')
 
+    APP_422_CODE_STATUS: int = int(os.getenv('APP_422_CODE_STATUS'))
+
 
 class SwaggerSettings:
     pass
