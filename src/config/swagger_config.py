@@ -6,6 +6,27 @@ from starlette import status
 from src.settings import settings
 
 
+async def get_routes(application: FastAPI, path=True, tags=True, methods=True, ):
+    routes_info = []
+    for route in application.routes:
+        route_dict = {}
+        if path:
+            route_dict['path'] = route.path
+        if tags:
+            route_dict['tags'] = route.tags if hasattr(route, "tags") else []
+        if methods:
+            route_dict['methods'] = route.methods
+        routes_info.append(route_dict)
+    return routes_info
+
+
+def delete_router_tag(application: FastAPI):
+    for route in application.routes:
+        if hasattr(route, "tags"):
+            if isinstance(route.tags, list) and len(route.tags) > 1:
+                del route.tags[0]
+
+
 def config_swagger(app: FastAPI, app_title='Unknown application'):
     @app.get('/docs', status_code=status.HTTP_200_OK, include_in_schema=False)
     @app.get('/docs/', status_code=status.HTTP_200_OK, tags=[settings.tags.SWAGGER_TAG])
