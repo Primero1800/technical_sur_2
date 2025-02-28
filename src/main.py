@@ -2,17 +2,16 @@ import uvicorn
 
 from src.utils import temp
 from src.users import views as users_views
-from src.config import app_config
-from src.config import swagger_config
-from src.settings import settings
+from src.core.config import AppConfigurer, SwaggerConfigurer
+from src.core.settings import settings
 
 
-app = app_config.create_app(
+app = AppConfigurer.create_app(
     docs_url=None,
     redoc_url=None,
 )
 
-app.openapi = app_config.get_custom_openapi(app)
+app.openapi = AppConfigurer.get_custom_openapi(app)
 
 app.include_router(
     users_views.router,
@@ -30,13 +29,13 @@ app.include_router(
 )
 
 
-swagger_config.config_swagger(app, settings.app.APP_TITLE)
+SwaggerConfigurer.config_swagger(app, settings.app.APP_TITLE)
 
 
 ######################################################################
 
-swagger_config.delete_router_tag(app)
-app_config.config_validation_exception_handler(app)
+SwaggerConfigurer.delete_router_tag(app)
+AppConfigurer.config_validation_exception_handler(app)
 
 
 @app.get("/", tags=[settings.tags.ROOT_TAG,],)
@@ -60,7 +59,7 @@ def test_endpoint():
 @app.get("/routes/", tags=[settings.tags.TECH_TAG,],)
 @app.get("/routes",  tags=[settings.tags.TECH_TAG,], include_in_schema=False,)
 async def get_routes_endpoint():
-    return await swagger_config.get_routes(
+    return await SwaggerConfigurer.get_routes(
         application=app,
     )
 

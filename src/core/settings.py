@@ -1,8 +1,9 @@
 import os
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pydantic.v1 import BaseSettings
+from pydantic_settings import BaseSettings
 
 load_dotenv()
 
@@ -28,11 +29,24 @@ class Tags:
     ROOT_TAG = os.getenv('ROOT_TAG')
     SWAGGER_TAG = os.getenv('SWAGGER_TAG')
 
+class DB:
+    DB_NAME = os.getenv('DB_NAME_TEST') if 'pytest' in sys.modules else os.getenv('DB_NAME')
+    DB_ENGINE = os.getenv('DB_ENGINE')
+    DB_USER = os.getenv('DB_USER')
+    DB_PASSWORD = os.getenv('DB_PASSWORD')
+    DB_HOST = os.getenv('DB_HOST')
+    DB_PORT = os.getenv('DB_PORT')
+
+    DB_TABLE_PREFIX = os.getenv('DB_TABLE_PREFIX')
+
+    DB_ECHO_MODE = True if os.getenv('DB_ECHO_MODE') == 'True' else False
+
 
 class Settings(BaseSettings):
     app: AppSettings = AppSettings()
     swagger: SwaggerSettings = SwaggerSettings()
     tags: Tags = Tags()
+    db: DB = DB()
 
 
 settings = Settings()
