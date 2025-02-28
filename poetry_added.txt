@@ -1,0 +1,21 @@
+pip install poetry
+
+
+poetry add:
+
+    fastAPI
+    uvicorn
+    pydantic[email]
+    httpie
+    python-dotenv
+
+    python-multipart
+
+
+
+
+poetry add *** --group dev:
+
+    pytest
+    pytest-mock
+    pytest-asyncio
