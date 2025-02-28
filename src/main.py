@@ -24,7 +24,7 @@ app.include_router(
 )
 app.include_router(
     router_v1,
-    prefix="/v1",
+    prefix=settings.app.API_V1_PREFIX,
 )
 app.include_router(
     temp.router,

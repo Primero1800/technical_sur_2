@@ -14,6 +14,9 @@ class AppSettings:
     APP_VERSION: str = os.getenv('APP_VERSION')
     APP_DESCRIPTION: str = os.getenv('APP_DESCRIPTION')
 
+    API_PREFIX = os.getenv('API_PREFIX')
+    API_V1_PREFIX = API_PREFIX + os.getenv('API_V1_PREFIX')
+
     APP_422_CODE_STATUS: int = int(os.getenv('APP_422_CODE_STATUS'))
 
 
