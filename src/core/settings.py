@@ -8,10 +8,8 @@ from pydantic_settings import BaseSettings
 load_dotenv()
 
 
-BASE_DIR = Path(__file__).parent
-
-
 class AppSettings:
+    APP_BASE_DIR = Path(__file__).resolve().parent.parent.parent
     APP_TITLE: str = os.getenv('APP_TITLE')
     APP_VERSION: str = os.getenv('APP_VERSION')
     APP_DESCRIPTION: str = os.getenv('APP_DESCRIPTION')
@@ -28,6 +26,8 @@ class Tags:
     USERS_TAG = os.getenv('USERS_TAG')
     ROOT_TAG = os.getenv('ROOT_TAG')
     SWAGGER_TAG = os.getenv('SWAGGER_TAG')
+    PRODUCTS_TAG = os.getenv('PRODUCTS_TAG')
+
 
 class DB:
     DB_NAME = os.getenv('DB_NAME_TEST') if 'pytest' in sys.modules else os.getenv('DB_NAME')

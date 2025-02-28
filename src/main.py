@@ -2,8 +2,10 @@ import uvicorn
 
 from src.utils import temp
 from src.users import views as users_views
+from src.api_v1.products import views as products_views
 from src.core.config import AppConfigurer, SwaggerConfigurer
 from src.core.settings import settings
+from src.api_v1 import router as router_v1
 
 
 app = AppConfigurer.create_app(
@@ -19,6 +21,10 @@ app.include_router(
     tags=[
         settings.tags.USERS_TAG,
     ],
+)
+app.include_router(
+    router_v1,
+    prefix="/v1",
 )
 app.include_router(
     temp.router,

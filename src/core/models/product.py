@@ -4,6 +4,6 @@ from src.core.models import Base
 
 
 class Product(Base):
-    name : Mapped[str]
+    name: Mapped[str]
     description: Mapped[str]
     price: Mapped[int]

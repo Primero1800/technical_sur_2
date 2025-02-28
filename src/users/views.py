@@ -6,16 +6,16 @@ from src.users import crud
 router = APIRouter()
 
 
-@router.get("/users/")
+@router.get("/")
 async def get_users():
     return {"TODO": "return all users"}
 
 
-@router.get("/users/{user_id}/")
+@router.get("/{user_id}/")
 async def get_users(user_id: int):
     return {"user_id": user_id}
 
 
-@router.post("/users/")
+@router.post("/")
 async def create_user(user: CreateUser):
     return crud.create_user(user)

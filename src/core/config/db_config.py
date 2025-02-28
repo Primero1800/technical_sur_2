@@ -1,5 +1,9 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from src.core.models import Base
+from asyncio import current_task
+
+from sqlalchemy.ext.asyncio import (
+    create_async_engine, AsyncSession, async_sessionmaker, async_scoped_session,
+)
+
 from sqlalchemy.exc import IntegrityError
 
 from src.core.settings import settings
@@ -25,8 +29,19 @@ class DBConfigurerInitializer:
             autoflush=False,
             autocommit=False,
             expire_on_commit=False,
-
         )
+
+    def get_scoped_session(self):
+        session = async_scoped_session(
+            session_factory=self.Session,
+            scopefunc=current_task
+        )
+        return session
+
+    async def session_dependency(self) -> AsyncSession:
+        async with self.get_scoped_session() as session:
+            yield session
+            await session.remove()
 
 
 DBConfigurer = DBConfigurerInitializer()
