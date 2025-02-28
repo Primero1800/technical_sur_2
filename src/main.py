@@ -14,8 +14,20 @@ app = app_config.create_app(
 
 app.openapi = app_config.get_custom_openapi(app)
 
-app.include_router(users_views.router, prefix='/users', tags=[settings.tags.USERS_TAG,])
-app.include_router(temp.router, prefix='/temp', tags=[settings.tags.TECH_TAG,])
+app.include_router(
+    users_views.router,
+    prefix="/users",
+    tags=[
+        settings.tags.USERS_TAG,
+    ],
+)
+app.include_router(
+    temp.router,
+    prefix="/temp",
+    tags=[
+        settings.tags.TECH_TAG,
+    ],
+)
 
 
 swagger_config.config_swagger(app, settings.app.APP_TITLE)
@@ -27,33 +39,58 @@ swagger_config.delete_router_tag(app)
 app_config.config_validation_exception_handler(app)
 
 
-@app.get('/', tags=[settings.tags.ROOT_TAG,])
 @app.get(
-    '', tags=[settings.tags.ROOT_TAG,], include_in_schema=False
+    "/",
+    tags=[
+        settings.tags.ROOT_TAG,
+    ],
+)
+@app.get(
+    "",
+    tags=[
+        settings.tags.ROOT_TAG,
+    ],
+    include_in_schema=False,
 )
 def top():
-    return 'top here'
+    return "top here"
 
 
-@app.get("/echo/{thing}/", tags=[settings.tags.TECH_TAG,])
 @app.get(
-    "/echo/{thing}", tags=[settings.tags.TECH_TAG,], include_in_schema=False
+    "/echo/{thing}/",
+    tags=[
+        settings.tags.TECH_TAG,
+    ],
+)
+@app.get(
+    "/echo/{thing}",
+    tags=[
+        settings.tags.TECH_TAG,
+    ],
+    include_in_schema=False,
 )
 def echo(thing):
-    return ' '.join([thing for _ in range(3)])
+    return " ".join([thing for _ in range(3)])
 
 
 @app.get("/test/", tags=[settings.tags.TECH_TAG])
-@app.get(
-    "/test", tags=[settings.tags.TECH_TAG], include_in_schema=False
-)
+@app.get("/test", tags=[settings.tags.TECH_TAG], include_in_schema=False)
 def test_endpoint():
     return {"message": "Hello from test!"}
 
 
-@app.get("/routes/", tags=[settings.tags.TECH_TAG,])
 @app.get(
-    "/routes", tags=[settings.tags.TECH_TAG,], include_in_schema=False
+    "/routes/",
+    tags=[
+        settings.tags.TECH_TAG,
+    ],
+)
+@app.get(
+    "/routes",
+    tags=[
+        settings.tags.TECH_TAG,
+    ],
+    include_in_schema=False,
 )
 async def get_routes_endpoint():
     return await swagger_config.get_routes(
