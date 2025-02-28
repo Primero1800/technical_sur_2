@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.get('/', response_model=List[Product])
 async def get_products(
-        session: AsyncSession = Depends(DBConfigurer.session_dependency)
+        session: AsyncSession = Depends(DBConfigurer.scope_session_dependency)
 ) -> List[Product]:
     return await crud.get_products(session=session)
 
@@ -21,7 +21,7 @@ async def get_products(
 @router.get('/{product_id}/', response_model=Product)
 async def get_product(
         product_id: int,
-        session: AsyncSession = Depends(DBConfigurer.session_dependency)
+        session: AsyncSession = Depends(DBConfigurer.scope_session_dependency)
 ) -> Product:
     product = await crud.get_product(session=session, product_id=product_id)
     if not product:
@@ -35,7 +35,7 @@ async def get_product(
 @router.post('/', response_model=Product)
 async def create_product(
         instance: ProductCreate,
-        session: AsyncSession = Depends(DBConfigurer.session_dependency)
+        session: AsyncSession = Depends(DBConfigurer.scope_session_dependency)
 ) -> Product | None:
     return await crud.create_product(session=session, instance=instance)
 

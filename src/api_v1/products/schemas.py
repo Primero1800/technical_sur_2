@@ -11,13 +11,13 @@ class ProductBase(BaseModel):
         description='The name of product, that uses in application'
     )]
     description: Annotated[Optional[str], Field(
-        min_length=300,
+        max_length=300,
         default='',
         title='Product description',
         description='The description of product, that uses in application'
     )]
     price: Annotated[int, Field(
-        max_digits=6,
+        # max_digits=6,
         default=100,
         title='Product price',
         description='The price of product, that uses in application'

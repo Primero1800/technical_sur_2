@@ -39,9 +39,14 @@ class DBConfigurerInitializer:
         return session
 
     async def session_dependency(self) -> AsyncSession:
-        async with self.get_scoped_session() as session:
+        async with self.Session() as session:
             yield session
-            await session.remove()
+            await session.close()
+
+    async def scope_session_dependency(self):
+        session = self.get_scoped_session()
+        yield session
+        await session.close()
 
 
 DBConfigurer = DBConfigurerInitializer()
