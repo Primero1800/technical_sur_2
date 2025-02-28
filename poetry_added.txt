@@ -8,8 +8,9 @@ poetry add:
     pydantic[email]
     httpie
     python-dotenv
-
+    pydantic-settings
     python-multipart
+    asyncpg
 
 
 
