@@ -39,36 +39,14 @@ swagger_config.delete_router_tag(app)
 app_config.config_validation_exception_handler(app)
 
 
-@app.get(
-    "/",
-    tags=[
-        settings.tags.ROOT_TAG,
-    ],
-)
-@app.get(
-    "",
-    tags=[
-        settings.tags.ROOT_TAG,
-    ],
-    include_in_schema=False,
-)
+@app.get("/", tags=[settings.tags.ROOT_TAG,],)
+@app.get("", tags=[settings.tags.ROOT_TAG,], include_in_schema=False,)
 def top():
     return "top here"
 
 
-@app.get(
-    "/echo/{thing}/",
-    tags=[
-        settings.tags.TECH_TAG,
-    ],
-)
-@app.get(
-    "/echo/{thing}",
-    tags=[
-        settings.tags.TECH_TAG,
-    ],
-    include_in_schema=False,
-)
+@app.get("/echo/{thing}/", tags=[settings.tags.TECH_TAG,],)
+@app.get("/echo/{thing}", tags=[settings.tags.TECH_TAG,], include_in_schema=False,)
 def echo(thing):
     return " ".join([thing for _ in range(3)])
 
@@ -79,19 +57,8 @@ def test_endpoint():
     return {"message": "Hello from test!"}
 
 
-@app.get(
-    "/routes/",
-    tags=[
-        settings.tags.TECH_TAG,
-    ],
-)
-@app.get(
-    "/routes",
-    tags=[
-        settings.tags.TECH_TAG,
-    ],
-    include_in_schema=False,
-)
+@app.get("/routes/", tags=[settings.tags.TECH_TAG,],)
+@app.get("/routes",  tags=[settings.tags.TECH_TAG,], include_in_schema=False,)
 async def get_routes_endpoint():
     return await swagger_config.get_routes(
         application=app,
