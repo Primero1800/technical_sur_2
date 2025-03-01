@@ -21,3 +21,9 @@ class Profile(UserRelationMixin, Base):
     bio: Mapped[str | None] = mapped_column(
         Text, default='', server_default=''
     )
+
+    def __str__(self):
+        return f"{self.__class__.__name__}(firstname={self.firstname}, lastname={self.lastname}, bio={self.bio:10})"
+
+    def __repr__(self):
+        return str(self)

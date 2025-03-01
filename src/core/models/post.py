@@ -18,3 +18,9 @@ class Post(UserRelationMixin, Base):
     review: Mapped[str] = mapped_column(
         Text, default="", server_default=""
     )
+
+    def __str__(self):
+        return f"{self.__class__.__name__}(title={self.title}, review={self.review:20})"
+
+    def __repr__(self):
+        return str(self)

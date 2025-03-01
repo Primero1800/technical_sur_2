@@ -4,3 +4,7 @@ from .schemas_user import (
 from .schemas_profile import (
     Profile, ProfileCreate, ProfileUpdate, ProfilePartialUpdate,
 )
+
+from .schemas_post import (
+    Post, PostUpdate, PostPartialUpdate, PostCreate,
+)
