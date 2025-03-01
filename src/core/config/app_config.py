@@ -16,8 +16,8 @@ class AppConfigurer:
     @staticmethod
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        async with DBConfigurer.engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+        # async with DBConfigurer.engine.begin() as conn:               ### NO NEED AFTER ALEMBIC ADDED
+        #     await conn.run_sync(Base.metadata.create_all)
         yield
 
 
