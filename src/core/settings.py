@@ -33,6 +33,7 @@ class Tags:
 
 
 class DB:
+
     DB_NAME = os.getenv('DB_NAME_TEST') if 'pytest' in sys.modules else os.getenv('DB_NAME')
     DB_ENGINE = os.getenv('DB_ENGINE')
     DB_USER = os.getenv('DB_USER')
@@ -44,6 +45,8 @@ class DB:
 
     DB_ECHO_MODE = True if os.getenv('DB_ECHO_MODE') == 'True' else False
 
+    DB_URL = None
+
 
 class Settings(BaseSettings):
     app: AppSettings = AppSettings()
@@ -53,3 +56,17 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def get_db_connection():
+    return '{}://{}:{}@{}:{}/{}'.format(
+        settings.db.DB_ENGINE,
+        settings.db.DB_USER,
+        settings.db.DB_PASSWORD,
+        settings.db.DB_HOST,
+        settings.db.DB_PORT,
+        settings.db.DB_NAME,
+    )
+
+
+settings.db.DB_URL = get_db_connection()

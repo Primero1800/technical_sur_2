@@ -11,6 +11,7 @@ poetry add:
     pydantic-settings
     python-multipart
     asyncpg
+    alembic
 
 
 
