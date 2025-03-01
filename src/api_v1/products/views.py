@@ -79,4 +79,3 @@ async def delete_product(
         session=session,
         product=product
     )
-
