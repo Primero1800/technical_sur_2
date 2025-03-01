@@ -1,14 +1,10 @@
-from functools import partial
-from typing import Any, List, Annotated, Optional
+from typing import List
 
-from fastapi import APIRouter, HTTPException, Depends, Body, Form
-from fastapi.exceptions import RequestValidationError
-from pydantic import EmailStr, BaseModel, Field
+from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
 from starlette.requests import Request
-from starlette.responses import JSONResponse
 
-from src.users.schemas import CreateUser
+from src.api_v1.users.schemas import UserCreate
 
 router = APIRouter()
 
@@ -53,7 +49,7 @@ async def temp(
 
 @router.post("/email")
 # @router.post("/email/{email}")
-async def temp(user: CreateUser):
+async def temp(user: UserCreate):
     return {
         'success': True,
         **user.model_dump()
