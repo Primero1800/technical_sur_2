@@ -5,7 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.models import Base
-
+from ..config.db_config import DBConfigurerInitializer
 
 if TYPE_CHECKING:
     from .product import Product
@@ -18,6 +18,12 @@ class Order(Base):
         default=datetime.now,
     )
     products: Mapped[list['Product']] = relationship(
-        secondary='order_product_association',
+        secondary=DBConfigurerInitializer.utils.camel2snake('OrderProductAssociation'),
         back_populates="orders",
     )
+
+    def __str__(self):
+        return f"{self.__class__.__name__}(id={self.id}, created_at={self.created_at})"
+
+    def __repr__(self):
+        return str(self)

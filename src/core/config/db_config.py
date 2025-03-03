@@ -1,3 +1,4 @@
+import re
 from asyncio import current_task
 
 from sqlalchemy.ext.asyncio import (
@@ -9,7 +10,22 @@ from sqlalchemy.exc import IntegrityError
 from src.core.settings import settings
 
 
+class Utils:
+    prefix = settings.db.DB_TABLE_PREFIX
+
+    @staticmethod
+    def db_tablename_camel(cls):
+        return ''.join(s.capitalize() for s in re.split(r'[ _-]', cls.__name__.lower()))
+
+    @staticmethod
+    def camel2snake(name):
+        snake = re.sub(r'(?<!^)(?=[A-Z])', '_', name)
+        return Utils.prefix + '_' + snake.lower()
+
+
 class DBConfigurerInitializer:
+    utils = Utils()
+
     def __init__(self):
         self.connection_path = settings.db.DB_URL
         self.engine = create_async_engine(self.connection_path, echo=settings.db.DB_ECHO_MODE)

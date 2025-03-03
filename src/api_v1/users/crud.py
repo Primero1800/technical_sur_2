@@ -1,11 +1,13 @@
 import asyncio
-from typing import List, Annotated
+import re
+from typing import List, Annotated, Sequence
 
 from fastapi import Path
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
+from src.api_v1.products.schemas import ProductCreate
 from src.api_v1.users.schemas.schemas_order import OrderCreate
 from src.core.config import DBConfigurer, IntegrityError
 from src.api_v1.users.schemas import (
@@ -13,8 +15,9 @@ from src.api_v1.users.schemas import (
     ProfileUpdate, ProfileCreate, ProfilePartialUpdate,
     PostUpdate, PostCreate, PostPartialUpdate,
 )
+from src.core.config.db_config import DBConfigurerInitializer
 
-from src.core.models import User, Profile, Post, Order
+from src.core.models import User, Profile, Post, Order, Product
 
 
 async def get_users(session: AsyncSession) -> List[User]:
@@ -166,24 +169,75 @@ async def get_post_users(
         print(line)
 
 
+async def create_users_and_profile(session: AsyncSession):
+    print(await create_user(session=session, instance=UserCreate(username='Ivanide')))
+    print(await create_user(session=session, instance=UserCreate(username='Han')))
+
+    print(await get_user_by_username(session=session, username='Ivan'))
+    print(await get_user_by_username(session=session, username='Ivan22'))
+
+    prof1 = await create_user_profile(user_id=1, session=session, instance=ProfileCreate(
+        firstname='Senia', lastname='Durak', bio="Was born"
+    ))
+
+    post = await create_user_post(user_id=2, session=session, instance=PostCreate(
+        title='Understanding', review='I understand nothing'))
+    user = await get_user_joined(session=session, user_id=1)
+
+    print(user)
+    print(user.profile)
+    print(user.posts)
+
+
+async def create_products_and_orders(session: AsyncSession):
+    order1 = await create_order(
+        session=session, instance=OrderCreate(promocode='7cow8')
+    )
+
+    order2 = await create_order(
+        session=session, instance=OrderCreate(promocode=None)
+    )
+
+    prod1 = await create_product(
+        session=session, instance=ProductCreate(
+            name='Kolgotki',
+            description='Very good, sexy lady',
+            price=200
+        )
+    )
+
+    prod2 = await create_product(
+        session=session, instance=ProductCreate(
+            name='Fish',
+            description='Raw and smelly',
+            price=75
+        )
+    )
+
+    prod3 = await create_product(
+        session=session, instance=ProductCreate(
+            name='Ananas',
+            description='From Africa',
+            price=150
+        )
+    )
+
+    order1: Order | None = await session.scalar(
+        statement=select(Order).where(Order.id == order1.id).options(selectinload(Order.products), ))
+    order2: Order | None = await session.scalar(
+        statement=select(Order).where(Order.id == order2.id).options(selectinload(Order.products), ))
+
+    if order1:
+        order1.products.append(prod1)
+        order1.products.append(prod2)
+    if order2:
+        order2.products.append(prod2)
+        order2.products.append(prod3)
+
+    await session.commit()
+
+
 async def main_relations(session: AsyncSession):
-    # print(await create_user(session=session, instance=UserCreate(username='Ivanide')))
-    # print(await create_user(session=session, instance=UserCreate(username='Han')))
-
-    # print(await get_user_by_username(session=session, username='Ivan'))
-    # print(await get_user_by_username(session=session, username='Ivan22'))
-
-    # prof1 = await create_user_profile(user_id=1, session=session, instance=ProfileCreate(
-    #     firstname='Senia', lastname='Durak', bio="Was born"
-    # ))
-
-    # post = await create_user_post(user_id=2, session=session, instance=PostCreate(
-    #     title='Understanding', review='I understand nothing'))
-    # user = await get_user_joined(session=session, user_id=1)
-
-    # print(user)
-    # print(user.profile)
-    # print(user.posts)
 
     # await get_users_posts_and_profile(session=session)
 
@@ -197,7 +251,6 @@ async def main_relations(session: AsyncSession):
 
 
 async def create_order(session: AsyncSession, instance: OrderCreate):
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", instance.model_dump())
     order: Order = Order(**instance.model_dump())
     session.add(order)
     await session.commit()
@@ -205,25 +258,37 @@ async def create_order(session: AsyncSession, instance: OrderCreate):
     return order
 
 
+async def create_product(session: AsyncSession, instance: ProductCreate):
+    product: Product = Product(**instance.model_dump())
+    session.add(product)
+    await session.commit()
+    await session.refresh(product)
+    return product
+
+
 async def demo_m2m(session: AsyncSession):
-    print(
-        await create_order(
-            session=session, instance=OrderCreate(promocode='123')
-        )
-    )
-    print(
-        await create_order(
-            session=session, instance=OrderCreate(promocode=None)
-        )
-    )
+    pass
+
+
+async def get_orders_with_products(session: AsyncSession):
+    stmt = select(Order).options(joinedload(Order.products)).order_by(Order.id)
+    result: Result = await session.execute(stmt)
+    orders: list[Order] = list(result.scalars().unique())
+    return orders
+
 
 
 async def main():
     async with DBConfigurer.Session() as session:
         # await main_relations(session)
 
-        await demo_m2m(session)
+        # await demo_m2m(session)
 
+        # for order in await get_orders_with_products(session=session):
+        #     print(' ', order)
+        #     for product in order.products:
+        #         print('    ', product)
+        pass
 
 
 if __name__ == "__main__":

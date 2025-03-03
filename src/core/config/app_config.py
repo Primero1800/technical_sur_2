@@ -7,8 +7,6 @@ from fastapi.openapi.utils import get_openapi
 from starlette.responses import JSONResponse
 
 from src.core.settings import settings
-from src.core.models import Base
-from src.core.config.db_config import DBConfigurer
 
 
 class AppConfigurer:

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, relationship
 
 from src.core.models import Base
+from ..config.db_config import DBConfigurerInitializer
 
 if TYPE_CHECKING:
     from .order import Order
@@ -14,6 +15,12 @@ class Product(Base):
     price: Mapped[int]
 
     orders: Mapped[list['Order']] = relationship(
-        secondary='order_product_association',
+        secondary=DBConfigurerInitializer.utils.camel2snake('OrderProductAssociation'),
         back_populates="products",
     )
+
+    def __str__(self):
+        return f"{self.__class__.__name__}(id={self.id}, name={self.name}, price={self.price})"
+
+    def __repr__(self):
+        return str(self)
