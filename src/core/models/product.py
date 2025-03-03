@@ -7,6 +7,7 @@ from ..config.db_config import DBConfigurerInitializer
 
 if TYPE_CHECKING:
     from .order import Order
+    from .order_product_association import OrderProductAssociation
 
 
 class Product(Base):
@@ -17,6 +18,10 @@ class Product(Base):
     orders: Mapped[list['Order']] = relationship(
         secondary=DBConfigurerInitializer.utils.camel2snake('OrderProductAssociation'),
         back_populates="products",
+    )
+    orders_details: Mapped[list['OrderProductAssociation']] = relationship(
+        back_populates='product',
+        overlaps="orders",
     )
 
     def __str__(self):

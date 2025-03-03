@@ -17,7 +17,7 @@ from src.api_v1.users.schemas import (
 )
 from src.core.config.db_config import DBConfigurerInitializer
 
-from src.core.models import User, Profile, Post, Order, Product
+from src.core.models import User, Profile, Post, Order, Product, OrderProductAssociation
 
 
 async def get_users(session: AsyncSession) -> List[User]:
@@ -266,6 +266,12 @@ async def create_product(session: AsyncSession, instance: ProductCreate):
     return product
 
 
+async def get_product_by_name(session: AsyncSession, product_name: str) -> Product | None:
+    stmt = select(Product).where(Product.name == product_name)
+    product = await session.scalar(stmt)
+    return product
+
+
 async def demo_m2m(session: AsyncSession):
     pass
 
@@ -277,18 +283,59 @@ async def get_orders_with_products(session: AsyncSession):
     return orders
 
 
+async def get_orders_with_products_through(session: AsyncSession):
+    stmt = (select(Order).
+            options(joinedload(Order.products_details).joinedload(OrderProductAssociation.product)).
+            order_by(Order.id))
+
+    result: Result = await session.execute(stmt)
+    orders: list[Order] = list(result.scalars().unique())
+    return orders
+
+async def add_gift_to_every_existing_order_through(session: AsyncSession):
+    orders = await get_orders_with_products_through(session=session)
+    product = await get_product_by_name(session=session, product_name='Gift')
+    print('+++++++++++++++++++++++++ ', product)
+
+    for order in orders:
+        order.products_details.append(
+            OrderProductAssociation(
+                product=product,
+                count=2,
+                item_price=product.price
+            )
+        )
+    await session.commit()
+
+
+
 
 async def main():
     async with DBConfigurer.Session() as session:
+
+        # await create_products_and_orders(session=session)
+
         # await main_relations(session)
 
         # await demo_m2m(session)
+
 
         # for order in await get_orders_with_products(session=session):
         #     print(' ', order)
         #     for product in order.products:
         #         print('    ', product)
-        pass
+
+        await add_gift_to_every_existing_order_through(session=session)
+
+        orders = await get_orders_with_products_through(session=session)
+        for order in orders:
+            print(' ', order)
+            for products_detail in order.products_details:
+                print('        ', products_detail)
+                print('                ', products_detail.product, products_detail.item_price)
+
+
+    pass
 
 
 if __name__ == "__main__":
