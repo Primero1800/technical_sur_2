@@ -18,6 +18,6 @@ class Order(Base):
         default=datetime.now,
     )
     products: Mapped[list['Product']] = relationship(
-        secondary='order_product_association_table',
+        secondary='order_product_association',
         back_populates="orders",
     )

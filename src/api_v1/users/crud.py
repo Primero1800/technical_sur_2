@@ -6,6 +6,7 @@ from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
+from src.api_v1.users.schemas.schemas_order import OrderCreate
 from src.core.config import DBConfigurer, IntegrityError
 from src.api_v1.users.schemas import (
     UserUpdate, UserCreate, UserPartialUpdate,
@@ -13,7 +14,7 @@ from src.api_v1.users.schemas import (
     PostUpdate, PostCreate, PostPartialUpdate,
 )
 
-from src.core.models import User, Profile, Post
+from src.core.models import User, Profile, Post, Order
 
 
 async def get_users(session: AsyncSession) -> List[User]:
@@ -195,13 +196,32 @@ async def main_relations(session: AsyncSession):
     posts = await get_post_users(session=session)
 
 
+async def create_order(session: AsyncSession, instance: OrderCreate):
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", instance.model_dump())
+    order: Order = Order(**instance.model_dump())
+    session.add(order)
+    await session.commit()
+    await session.refresh(order)
+    return order
+
+
 async def demo_m2m(session: AsyncSession):
-    pass
+    print(
+        await create_order(
+            session=session, instance=OrderCreate(promocode='123')
+        )
+    )
+    print(
+        await create_order(
+            session=session, instance=OrderCreate(promocode=None)
+        )
+    )
+
 
 async def main():
     async with DBConfigurer.Session() as session:
         # await main_relations(session)
-        
+
         await demo_m2m(session)
 
 
