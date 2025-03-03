@@ -165,41 +165,44 @@ async def get_post_users(
         print(line)
 
 
+async def main_relations(session: AsyncSession):
+    # print(await create_user(session=session, instance=UserCreate(username='Ivanide')))
+    # print(await create_user(session=session, instance=UserCreate(username='Han')))
+
+    # print(await get_user_by_username(session=session, username='Ivan'))
+    # print(await get_user_by_username(session=session, username='Ivan22'))
+
+    # prof1 = await create_user_profile(user_id=1, session=session, instance=ProfileCreate(
+    #     firstname='Senia', lastname='Durak', bio="Was born"
+    # ))
+
+    # post = await create_user_post(user_id=2, session=session, instance=PostCreate(
+    #     title='Understanding', review='I understand nothing'))
+    # user = await get_user_joined(session=session, user_id=1)
+
+    # print(user)
+    # print(user.profile)
+    # print(user.posts)
+
+    # await get_users_posts_and_profile(session=session)
+
+    # profiles = await get_profile_user_posts(session=session)
+
+    posts = await get_user_posts(session=session)
+    print()
+    print()
+
+    posts = await get_post_users(session=session)
 
 
+async def demo_m2m(session: AsyncSession):
+    pass
 
 async def main():
     async with DBConfigurer.Session() as session:
-        # print(await create_user(session=session, instance=UserCreate(username='Ivanide')))
-        # print(await create_user(session=session, instance=UserCreate(username='Han')))
-
-        # print(await get_user_by_username(session=session, username='Ivan'))
-        # print(await get_user_by_username(session=session, username='Ivan22'))
-
-        # prof1 = await create_user_profile(user_id=1, session=session, instance=ProfileCreate(
-        #     firstname='Senia', lastname='Durak', bio="Was born"
-        # ))
-
-        # post = await create_user_post(user_id=2, session=session, instance=PostCreate(
-        #     title='Understanding', review='I understand nothing'))
-        #
-        # user = await get_user_joined(session=session, user_id=1)
-        #
-        #
-        # print(user)
-        # print(user.profile)
-        # print(user.posts)
-
-        # await get_users_posts_and_profile(session=session)
-
-        # profiles = await get_profile_user_posts(session=session)
-
-        posts = await get_user_posts(session=session)
-        print()
-        print()
-
-        posts = await get_post_users(session=session)
-
+        # await main_relations(session)
+        
+        await demo_m2m(session)
 
 
 
