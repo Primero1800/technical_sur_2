@@ -49,11 +49,23 @@ class DB:
     DB_URL = None
 
 
+class AuthJWT:
+    private_key = AppSettings.APP_BASE_DIR / "crs" / "core" / "config"/"certs"/"jwt-private.pem",
+    public_key = AppSettings.APP_BASE_DIR / "crs" / "core" / "config"/"certs"/"jwt-public.pem",
+    algorithm = os.getenv('JWT_ALGORYTHM'),
+    token_type_field = os.getenv('TOKEN_TYPE_FIELD'),
+    access_token_expire_minutes = float(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES')),
+    refresh_token_expire_minutes = float(os.getenv('REFRESH_TOKEN_EXPIRE_MINUTES')),
+    access_token_type = os.getenv('ACCESS_TOKEN_TYPE'),
+    refresh_token_type = os.getenv('REFRESH_TOKEN_TYPE'),
+
+
 class Settings(BaseSettings):
     app: AppSettings = AppSettings()
     swagger: SwaggerSettings = SwaggerSettings()
     tags: Tags = Tags()
     db: DB = DB()
+    auth_jwt = AuthJWT()
 
 
 settings = Settings()
