@@ -28,12 +28,12 @@ def jwt_decode(
     )
 
 
-def get_hash(plain: str) -> bytes:
+def get_hash(password: str) -> bytes:
     return bcrypt.hashpw(
-        password=plain.encode(),
+        password=password.encode(),
         salt=bcrypt.gensalt(),
     )
 
 
-def verify_hash(plain: str, hash_password: str) -> bool:
-    return bcrypt.checkpw(plain.encode(), hash_password.encode())
+def verify_hash(password: str, hash_password: bytes) -> bool:
+    return bcrypt.checkpw(password.encode(), hash_password)
