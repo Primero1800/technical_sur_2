@@ -30,6 +30,7 @@ class Tags:
     ROOT_TAG = os.getenv('ROOT_TAG')
     SWAGGER_TAG = os.getenv('SWAGGER_TAG')
     PRODUCTS_TAG = os.getenv('PRODUCTS_TAG')
+    AUTH_TAG = os.getenv('AUTH_TAG')
 
 
 class DB:

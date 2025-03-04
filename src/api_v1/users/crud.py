@@ -340,5 +340,10 @@ async def main():
 
 if __name__ == "__main__":
 
-    asyncio.run(main())
+    # asyncio.run(main())
+
+    d = {'1': 'www', '2': 'ddd'}
+
+    res = d.get('1')
+    print(res)
 

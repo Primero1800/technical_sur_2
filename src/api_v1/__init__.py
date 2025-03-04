@@ -2,9 +2,18 @@ from fastapi import APIRouter
 
 from .products.views import router as products_router
 from .users.views import router as users_router
+from .demo_auth.views import router as auth_router
 from src.core.settings import settings
 
 router = APIRouter()
+
+router.include_router(
+    auth_router,
+    prefix="/demo-auth",
+    tags=[
+        settings.tags.AUTH_TAG,
+    ]
+)
 
 router.include_router(
     users_router,
