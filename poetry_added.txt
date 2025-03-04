@@ -12,6 +12,7 @@ poetry add:
     python-multipart
     asyncpg
     alembic
+    pyjwt[crypto]
 
 
 
