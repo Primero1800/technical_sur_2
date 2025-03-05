@@ -74,18 +74,11 @@ async def get_current_user_from_payload_to_operate(
         token_type_need=settings.auth_jwt.access_token_type,
         jwt_payload=jwt_payload
     )
-    user: User
-                            # Проверка, существует ли еще в БД пользователь, извлеченный из токена
-    raw_user_model = await users_crud.get_user(
-        user_id=int(jwt_payload.get('sub')),
+    user = await get_current_user_from_payload(
+        jwt_payload=jwt_payload,
         session=session
     )
-    if user := User(**raw_user_model.to_dict()) if raw_user_model else None:
-        return user
-    await unauthed(
-        detail="Invalid token, user not found",
-        auth_headers='Bearer',
-    )
+    return user
 
 
 async def get_current_user_from_payload_to_refresh(
@@ -96,8 +89,19 @@ async def get_current_user_from_payload_to_refresh(
         token_type_need=settings.auth_jwt.refresh_token_type,
         jwt_payload=jwt_payload
     )
+    user = await get_current_user_from_payload(
+        jwt_payload=jwt_payload,
+        session=session
+    )
+    return user
+
+
+async def get_current_user_from_payload(
+        jwt_payload: dict,
+        session: AsyncSession
+) -> User:
     user: User
-                            # Проверка, существует ли еще в БД пользователь, извлеченный из токена
+    # Проверка, существует ли еще в БД пользователь, извлеченный из токена
     raw_user_model = await users_crud.get_user(
         user_id=int(jwt_payload.get('sub')),
         session=session
