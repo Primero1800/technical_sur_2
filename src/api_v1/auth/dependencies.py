@@ -1,6 +1,6 @@
 from fastapi import Form, Depends
 from fastapi.security import (
-    HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordBearer,
+    HTTPBearer, OAuth2PasswordBearer,
 )
 from jwt import InvalidTokenError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,6 +11,7 @@ from src.errors import unauthed, unauthorized, bad_request
 import src.api_v1.users.crud as users_crud
 from ..users.schemas import User
 from ...core.settings import settings
+from . import validators
 
 HTTP_BEARER = HTTPBearer(auto_error=False)
 OAUTH2_SCHEME = OAuth2PasswordBearer(
@@ -52,9 +53,7 @@ async def validate_auth_user(
 async def get_current_token_payload(
         token: str = Depends(OAUTH2_SCHEME),
 ) -> dict:
-
-    # if isinstance(token, HTTPAuthorizationCredentials):
-    #     token = token.credentials
+    jwt_payload: dict = {}
     try:
         jwt_payload: dict = jwt_decode(
             token_cred=token,
@@ -67,10 +66,14 @@ async def get_current_token_payload(
     return jwt_payload
 
 
-async def get_current_user_from_payload(
+async def get_current_user_from_payload_to_operate(
         jwt_payload: dict = Depends(get_current_token_payload),
         session: AsyncSession = Depends(DBConfigurer.scope_session_dependency)
 ) -> User:
+    await validators.validate_token_by_type(
+        token_type_need=settings.auth_jwt.access_token_type,
+        jwt_payload=jwt_payload
+    )
     user: User
                             # Проверка, существует ли еще в БД пользователь, извлеченный из токена
     raw_user_model = await users_crud.get_user(
@@ -85,8 +88,50 @@ async def get_current_user_from_payload(
     )
 
 
+async def get_current_user_from_payload_to_refresh(
+        jwt_payload: dict = Depends(get_current_token_payload),
+        session: AsyncSession = Depends(DBConfigurer.scope_session_dependency)
+) -> User:
+    await validators.validate_token_by_type(
+        token_type_need=settings.auth_jwt.refresh_token_type,
+        jwt_payload=jwt_payload
+    )
+    user: User
+                            # Проверка, существует ли еще в БД пользователь, извлеченный из токена
+    raw_user_model = await users_crud.get_user(
+        user_id=int(jwt_payload.get('sub')),
+        session=session
+    )
+    if user := User(**raw_user_model.to_dict()) if raw_user_model else None:
+        return user
+    await unauthed(
+        detail="Invalid token, user not found",
+        auth_headers='Bearer',
+    )
+
+
+# async def get_current_user_from_payload(
+#         jwt_payload: dict = Depends(get_current_token_payload),
+#         session: AsyncSession = Depends(DBConfigurer.scope_session_dependency)
+# ) -> User:
+#     user: User
+#                             # Проверка, существует ли еще в БД пользователь, извлеченный из токена
+#     raw_user_model = await users_crud.get_user(
+#         user_id=int(jwt_payload.get('sub')),
+#         session=session
+#     )
+#     print('!!!!!!!!!!!!!!!!!!!!!!!!!! BEFORE USER ', raw_user_model)
+#     if user := User(**raw_user_model.to_dict()) if raw_user_model else None:
+#         print('!!!!!!!!!!!!!!!!!!!!!!!!!! AFTER USER ', user, type(user))
+#         return user
+#     await unauthed(
+#         detail="Invalid token, user not found",
+#         auth_headers='Bearer',
+#     )
+
+
 async def get_current_active_auth_user(
-        user: User = Depends(get_current_user_from_payload)
+        user: User = Depends(get_current_user_from_payload_to_operate)
 ) -> User:
     if not user.is_active:
         await unauthorized(

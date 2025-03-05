@@ -24,6 +24,20 @@ async def auth_user_issue_jwt(
     )
 
 
+@router.get(
+    "/refresh-token",
+    response_model=TokenInfo,
+    response_model_exclude_none=True,
+)
+async def refresh_access_token_with_refresh_token(
+    user: User = Depends(deps.get_current_user_from_payload_to_refresh)
+) -> TokenInfo:
+    access_token = await deps.create_access_token(user)
+    return TokenInfo(
+        access_token=access_token
+    )
+
+
 @router.get("/user-jwt-info")
 async def auth_user_check_info(
         user: User = Depends(deps.get_current_active_auth_user),
