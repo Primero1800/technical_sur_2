@@ -17,7 +17,9 @@ from src.api_v1.users.schemas import (
     PostUpdate, PostCreate, PostPartialUpdate,
 )
 
-from src.core.models import User, Profile, Post, Order, Product, OrderProductAssociation
+from src.core.models import (
+    User, Profile, Post, Order, Product, OrderProductAssociation
+)
 
 
 async def get_users(session: AsyncSession) -> List[User]:
