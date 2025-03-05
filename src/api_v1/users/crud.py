@@ -7,6 +7,7 @@ from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
+from src.api_v1.auth.utils import get_hash
 from src.api_v1.products.schemas import ProductCreate
 from src.api_v1.users.schemas.schemas_order import OrderCreate
 from src.core.config import DBConfigurer, IntegrityError
@@ -15,7 +16,6 @@ from src.api_v1.users.schemas import (
     ProfileUpdate, ProfileCreate, ProfilePartialUpdate,
     PostUpdate, PostCreate, PostPartialUpdate,
 )
-from src.core.config.db_config import DBConfigurerInitializer
 
 from src.core.models import User, Profile, Post, Order, Product, OrderProductAssociation
 
@@ -32,7 +32,9 @@ async def get_user(session: AsyncSession, user_id: int) -> User | None:
 
 
 async def create_user(session: AsyncSession, instance: UserCreate) -> User:
-    user = User(**instance.model_dump())
+    user_data = instance.model_dump()
+    user_data['password'] = get_hash(user_data['password']).decode()
+    user: User = User(**user_data)
     session.add(user)
     await session.commit()
     await session.refresh(user)
@@ -45,6 +47,10 @@ async def update_user(
         instance: UserUpdate | UserPartialUpdate,
         is_partial: bool = False
 ) -> User:
+
+    if instance.password:
+        instance.password = get_hash(instance.password).decode()
+
     for key, val in instance.model_dump(
         exclude_unset=is_partial
     ).items():
@@ -342,8 +348,7 @@ if __name__ == "__main__":
 
     # asyncio.run(main())
 
-    d = {'1': 'www', '2': 'ddd'}
+   pass
 
-    res = d.get('1')
-    print(res)
+
 

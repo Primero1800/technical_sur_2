@@ -37,3 +37,6 @@ def get_hash(password: str) -> bytes:
 
 def verify_hash(password: str, hash_password: bytes) -> bool:
     return bcrypt.checkpw(password.encode(), hash_password)
+
+
+DEFAULT_HASH_PASSWORD = get_hash(settings.auth_jwt.default_password)

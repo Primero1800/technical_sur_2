@@ -9,7 +9,7 @@ base_username_field = Annotated[str, Field(
         description='The alias of user, that uses in application',
     )]
 
-base_password_field = Annotated[bytes, Field(
+base_password_field = Annotated[str, Field(
         min_length=8,
         default='password',
         title='Hashed password',
@@ -26,7 +26,8 @@ base_email_field = Annotated[EmailStr | None, Field(
 
 class UserBase(BaseModel):
     username: base_username_field
-    password: Optional[base_password_field] = None
+    email: Optional[base_email_field] = None
+    password: base_password_field
 
 
 class User(UserBase):
@@ -44,7 +45,7 @@ class User(UserBase):
 
 
 class UserCreate(UserBase):
-    password = base_password_field
+    pass
 
 
 class UserUpdate(UserCreate):
@@ -53,3 +54,5 @@ class UserUpdate(UserCreate):
 
 class UserPartialUpdate(UserCreate):
     username: Optional[base_username_field] = None
+    email: Optional[base_email_field] = None
+    password: Optional[base_password_field] = None
