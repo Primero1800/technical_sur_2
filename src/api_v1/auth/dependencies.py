@@ -114,26 +114,6 @@ async def get_current_user_from_payload(
     )
 
 
-# async def get_current_user_from_payload(
-#         jwt_payload: dict = Depends(get_current_token_payload),
-#         session: AsyncSession = Depends(DBConfigurer.scope_session_dependency)
-# ) -> User:
-#     user: User
-#                             # Проверка, существует ли еще в БД пользователь, извлеченный из токена
-#     raw_user_model = await users_crud.get_user(
-#         user_id=int(jwt_payload.get('sub')),
-#         session=session
-#     )
-#     print('!!!!!!!!!!!!!!!!!!!!!!!!!! BEFORE USER ', raw_user_model)
-#     if user := User(**raw_user_model.to_dict()) if raw_user_model else None:
-#         print('!!!!!!!!!!!!!!!!!!!!!!!!!! AFTER USER ', user, type(user))
-#         return user
-#     await unauthed(
-#         detail="Invalid token, user not found",
-#         auth_headers='Bearer',
-#     )
-
-
 async def get_current_active_auth_user(
         user: User = Depends(get_current_user_from_payload_to_operate)
 ) -> User:
