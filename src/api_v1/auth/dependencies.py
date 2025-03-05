@@ -1,7 +1,5 @@
-from typing import Any
-
 from fastapi import Form, Depends
-from fastapi.security import HTTPBearer, HTTPBasicCredentials, HTTPAuthorizationCredentials
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt import InvalidTokenError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,11 +18,12 @@ async def validate_auth_user(
         session: AsyncSession = Depends(DBConfigurer.scope_session_dependency)
 ):
     user: User
+    raw_user_model = await users_crud.get_user_by_username(
+        session=session,
+        username=username,
+    )
     if not (  # Проверка, существует ли пользователь в БД
-            user := await users_crud.get_user_by_username(
-                session=session,
-                username=username,
-            )
+            user := User(**raw_user_model.to_dict()) if raw_user_model else None
     ):
         await unauthed(
             auth_headers='Bearer'
@@ -68,10 +67,11 @@ async def get_current_user_from_payload(
 ) -> User:
     user: User
                             # Проверка, существует ли еще в БД пользователь, извлеченный из токена
-    if user := await users_crud.get_user(
+    raw_user_model = await users_crud.get_user(
         user_id=int(jwt_payload.get('sub')),
         session=session
-    ):
+    )
+    if user := User(**raw_user_model.to_dict()) if raw_user_model else None:
         return user
     await unauthed(
         detail="Invalid token, user not found",

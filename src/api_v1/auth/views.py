@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from src.api_v1.users.schemas import User, UserCreate
-from .dependencies import validate_auth_user, get_current_active_auth_user
+from .dependencies import validate_auth_user, get_current_active_auth_user, get_current_token_payload
 from .schemas import TokenInfo
 from .utils import jwt_encode
 
@@ -28,6 +28,11 @@ async def auth_user_issue_jwt(
 
 @router.get("/user-jwt-info")
 async def auth_user_check_info(
-        user: User = Depends(get_current_active_auth_user)
-) -> User:
-    return user
+        user: User = Depends(get_current_active_auth_user),
+        jwt_payload: dict = Depends(get_current_token_payload)
+) -> dict:
+    print('UUUUUUUSSSSSSSSSSSSSERRRRR ', user, type(user))
+    return {
+        'last_login': jwt_payload.get('iat'),
+        **user.model_dump(),
+    }
