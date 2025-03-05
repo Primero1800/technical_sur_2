@@ -1,15 +1,21 @@
 from fastapi import Form, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import (
+    HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordBearer,
+)
 from jwt import InvalidTokenError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .utils import verify_hash, jwt_decode
+from .utils import verify_hash, jwt_decode, jwt_encode
 from src.core.config import DBConfigurer
 from src.errors import unauthed, unauthorized, bad_request
 import src.api_v1.users.crud as users_crud
 from ..users.schemas import User
+from ...core.settings import settings
 
 HTTP_BEARER = HTTPBearer(auto_error=False)
+OAUTH2_SCHEME = OAuth2PasswordBearer(
+    tokenUrl="/api/v1/jwt_auth/login"
+)
 
 
 async def validate_auth_user(
@@ -44,14 +50,14 @@ async def validate_auth_user(
 
 
 async def get_current_token_payload(
-        token_creds: str | HTTPAuthorizationCredentials = Depends(HTTP_BEARER),
+        token: str = Depends(OAUTH2_SCHEME),
 ) -> dict:
 
-    if isinstance(token_creds, HTTPAuthorizationCredentials):
-        token_creds = token_creds.credentials
+    # if isinstance(token, HTTPAuthorizationCredentials):
+    #     token = token.credentials
     try:
         jwt_payload: dict = jwt_decode(
-            token_cred=token_creds,
+            token_cred=token,
         )
     except InvalidTokenError as error:
         await bad_request(
@@ -88,3 +94,47 @@ async def get_current_active_auth_user(
             auth_headers='Bearer'
         )
     return user
+
+
+async def create_jwt_token(
+        token_type: str,
+        payload: dict,
+        expire_minutes: int = settings.auth_jwt.access_token_expire_minutes
+) -> str:
+    data = {settings.auth_jwt.token_type_field: token_type}
+    data.update(payload)
+    jwt_access_token = jwt_encode(
+        payload=data,
+        expire_minutes=expire_minutes
+    )
+    return jwt_access_token
+
+
+async def create_access_token(
+    user: User,
+) -> str:
+    jwt_payload = {
+        "sub": str(user.id),
+        "username": user.username,
+        "email": user.email,
+    }
+    jwt_access_token = await create_jwt_token(
+        token_type=settings.auth_jwt.access_token_type,
+        payload=jwt_payload,
+    )
+    return jwt_access_token
+
+
+async def create_refresh_token(
+    user: User,
+) -> str:
+    jwt_payload = {
+        "sub": str(user.id),
+        "username": user.username,
+    }
+    jwt_refresh_token = await create_jwt_token(
+        token_type=settings.auth_jwt.refresh_token_type,
+        payload=jwt_payload,
+        expire_minutes=settings.auth_jwt.refresh_token_expire_minutes,
+    )
+    return jwt_refresh_token
