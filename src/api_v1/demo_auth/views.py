@@ -5,8 +5,9 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Header, Response, Cookie
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from starlette import status
 from starlette.requests import Request
+
+from src.errors import unauthed, bad_request
 
 router = APIRouter()
 security = HTTPBasic()
@@ -21,28 +22,6 @@ token_to_username = {
     '2e756e5563f0be1c7a25f3c1b59580eaf23c06323919580921082290b2c414f9': 'primero',
     '0228e11bf2b867c817927547c25fb99c1dbe08090bd37c5bfb290c4499cb4b89': 'admin',
 }
-
-
-async def unauthed(
-        detail="Incorrect username or password",
-        auth_headers: str | None = 'Basic'
-):
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail=detail,
-        headers={"WWW-Authenticate": auth_headers} if auth_headers else None,
-    )
-
-
-async def bad_request(
-        detail='Bad request',
-        auth_headers: str = 'Token'
-):
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail=detail,
-        headers={'WWW-Authenticate': auth_headers},
-    )
 
 
 @router.get('/basic-auth')
