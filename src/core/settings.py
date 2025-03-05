@@ -31,6 +31,7 @@ class Tags:
     SWAGGER_TAG = os.getenv('SWAGGER_TAG')
     PRODUCTS_TAG = os.getenv('PRODUCTS_TAG')
     AUTH_TAG = os.getenv('AUTH_TAG')
+    JWT_AUTH_TAG = os.getenv('JWT_AUTH_TAG')
 
 
 class DB:
