@@ -1,7 +1,6 @@
 import uvicorn
 
 from src.utils import temp
-from src.api_v1.users import views as users_views
 from src.core.config import AppConfigurer, SwaggerConfigurer
 from src.core.settings import settings
 from src.api_v1 import router as router_v1

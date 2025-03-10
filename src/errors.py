@@ -2,6 +2,11 @@ from fastapi import HTTPException
 from starlette import status
 
 
+async def get_message(instance):
+    msg = str(instance.orig)
+    return msg.split('DETAIL:')[-1].strip() if 'DETAIL' in msg else str(instance)
+
+
 async def unauthed(
         detail="Incorrect username or password",
         auth_headers: str | None = 'Basic'

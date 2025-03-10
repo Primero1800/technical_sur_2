@@ -1,6 +1,7 @@
 import os
 import sys
 from pathlib import Path
+from typing import Literal
 
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
@@ -57,6 +58,11 @@ class DB(BaseSettings):
     DB_URL: str = ''
 
 
+class LoggingConfig(BaseSettings):
+    LOGGING_LEVEL: Literal['debug', 'info', 'warning', 'error', 'critical'] = os.getenv('LOGGING_LEVEL')
+    LOGGING_FORMAT: str = os.getenv('LOGGING_FORMAT')
+
+
 class AuthJWT:
     private_key = AppSettings.APP_BASE_DIR / "src" / "core" / "config"/"certs"/"jwt-private.pem"
     public_key = AppSettings.APP_BASE_DIR / "src" / "core" / "config"/"certs"/"jwt-public.pem"
@@ -76,6 +82,7 @@ class Settings(BaseSettings):
     db: DB = DB()
     auth_jwt: AuthJWT = AuthJWT()
     gunicorn: GunicornSettings = GunicornSettings()
+    logging: LoggingConfig = LoggingConfig()
 
 
 settings = Settings()

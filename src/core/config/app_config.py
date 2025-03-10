@@ -1,15 +1,24 @@
+import logging
 from contextlib import asynccontextmanager
 from typing import Callable, Dict, Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
+from sqlalchemy.exc import IntegrityError
+from starlette import status
 from starlette.responses import JSONResponse
 
+from src import errors
 from src.core.settings import settings
 
 
 class AppConfigurer:
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format=settings.logging.LOGGING_FORMAT
+    )
 
     @staticmethod
     @asynccontextmanager
@@ -48,7 +57,18 @@ class AppConfigurer:
     def config_validation_exception_handler(app: FastAPI):
         @app.exception_handler(RequestValidationError)
         async def validation_exception_handler(request, exc: RequestValidationError):
+            error_message = exc.errors()
+            logging.log(level=logging.INFO, msg=f"Sent from exception_handler (handler_constraints): {error_message}")
             return JSONResponse(
                 status_code=settings.app.APP_422_CODE_STATUS,
                 content={"detail": exc.errors(), "body": exc.body},
+            )
+
+        @app.exception_handler(IntegrityError)
+        async def validation_exception_handler_constraints(request, exc: IntegrityError):
+            error_message = await errors.get_message(exc)
+            logging.log(level=logging.INFO, msg=f"Sent from exception_handler (handler_constraints): {error_message}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"{error_message}",
             )
