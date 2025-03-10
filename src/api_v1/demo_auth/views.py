@@ -146,6 +146,3 @@ async def logout_cookie(
     return {
         'message': f"User '{username}' successfully logged out"
     }
-
-
-
